@@ -2,9 +2,7 @@ const { css } = require('emotion')
 const { theme } = require('../styles.js')
 const { html } = require('../utils.js')
 const Layout = require('../components/Layout.js')
-const LogoutLink = require('../components/LogoutLink.js')
 const SummaryTable = require('../components/SummaryTable.js')
-const Button = require('../components/Button.js')
 
 const dashboard = css`
   position: relative;
@@ -12,10 +10,6 @@ const dashboard = css`
   > div {
     margin-bottom: ${theme.space.lg};
   }
-`
-
-const submitButton = css`
-  width: 200px;
 `
 
 const makeRows = ({ sin, dobDay, dobMonth, dobYear, name, address }) => {
@@ -31,16 +25,10 @@ const Dashboard = ({ data = {} }) =>
   html`
     <${Layout}>
       <div class=${dashboard}>
-        <${LogoutLink} />
         <h1>Dashboard</h1>
         <div>
           <${SummaryTable} rows=${makeRows(data)} //>
         </div>
-
-        <br />
-        <form method="get" action="/confirmation">
-        <${Button} style=${submitButton}>Submit taxes<//>
-        </form>
       </div>
     </${Layout}>
   `

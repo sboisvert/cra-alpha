@@ -7,15 +7,15 @@ beforeEach(() => {
 })
 
 describe('Test server responses', () => {
-  test('it should return 200 for the root path', async () => {
+  test('it should return 404 for the root path', async () => {
     const response = await request(app).get('/')
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(404)
   })
 
   test('it should return security-focused headers in reponses', async () => {
     const response = await request(app).get('/')
 
-    /* 
+    /*
       More documentaion on each of these can be found here:
       - https://helmetjs.github.io/docs/
     */
@@ -34,5 +34,10 @@ describe('Test server responses', () => {
   test('it should return "Alpha" in the h1 tag for /alpha', async () => {
     const response = await request(app).get('/alpha')
     expect(response.text).toContain('<h1>Alpha</h1>')
+  })
+
+  test('it should return "Dashboard" in the h1 tag for /user', async () => {
+    const response = await request(app).get('/user')
+    expect(response.text).toContain('<h1>Dashboard</h1>')
   })
 })
