@@ -41,88 +41,12 @@ const getSessionData = (session = {}, enforceExists = false) => {
   return { sin, dobDay, dobMonth, dobYear }
 }
 
-app.get('/', (req, res) => {
-  res.send(renderPage({ locale, pageComponent: 'Welcome', props: { locale } }))
-})
-
-app.get('/login', (req, res) => {
-  res.send(
-    renderPage({
-      locale,
-      title: 'Log in',
-      pageComponent: 'Login',
-      props: { data: getSessionData(req.session) },
-    }),
-  )
-})
-
-app.post('/login', (req, res) => {
-  req.session = getSessionData(req.body)
-
-  if (!getSessionData(req.session, true)) {
-    return res.redirect(302, '/login')
-  }
-
-  res.redirect(302, '/dashboard')
-})
-
-app.get('/dashboard', (req, res) => {
-  const data = getSessionData(req.session, true)
-
-  if (!data) {
-    return res.redirect(302, '/login')
-  }
-
-  const name = 'Matthew Morris'
-  const address = '380 Lewis St\nOttawa\nOntario\nK2P 2P6'
-
-  res.send(
-    renderPage({
-      locale,
-      pageComponent: 'Dashboard',
-      props: { data: { ...data, name, address } },
-    }),
-  )
-})
-
-app.post('/dashboard', checkSchema(dashboardSchema), (req, res) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    const name = 'Matthew Morris'
-    const address = '380 Lewis St\nOttawa\nOntario\nK2P 2P6'
-
-    return res.status(422).send(
-      renderPage({
-        locale,
-        pageComponent: 'Dashboard',
-        title: 'Error: Dashboard',
-        props: {
-          data: { ...getSessionData(req.session), name, address },
-          errors: errorArray2ErrorObject(errors),
-        },
-      }),
-    )
-  }
-
-  return res.redirect(302, '/confirmation')
-})
-
 app.get('/consent', (req, res) => {
   const content =
     '<h1>Consent</h1> \
     <p>Permission for something to happen or agreement to do something.</p>'
 
   res.send(_renderDocument({ title: '[WIP] Consent', locale, content }))
-})
-
-app.get('/edit', (req, res) => {
-  const content = `
-    <h1>Editing coming soon</h1>
-    <p>Editing isn’t working yet, so for now you have to print out this website, change your info, and then mail it to Nancy McKenna.</p>
-    <a href="/dashboard">← Go back</a>
-    `
-
-  res.send(_renderDocument({ title: '[WIP] Edit', locale, content }))
 })
 
 app.get('/confirmation', (req, res) => {
@@ -138,11 +62,6 @@ app.get('/confirmation', (req, res) => {
       pageComponent: 'Confirmation',
     }),
   )
-})
-
-app.get('/logout', (req, res) => {
-  req.session = null
-  res.redirect(302, '/login')
 })
 
 /* TODO: delete this by Monday, April 15th */
@@ -170,24 +89,24 @@ app.get('/user', (req, res) => {
     renderPage({
       locale,
       pageComponent: 'Dashboard',
-      props: { data, userInfo: false },
+      props: { data, userInfo: true },
     }),
   )
 })
 
 /* TODO: delete this by Wednesday, April 17th */
 app.post('/user', checkSchema(dashboardSchema), (req, res) => {
+  const data = {
+    name: 'Matthew Morris',
+    address: '380 Lewis St\nOttawa\nOntario\nK2P 2P6',
+    sin: '123-456-789',
+    dobDay: '28',
+    dobMonth: '02',
+    dobYear: '1992',
+  }
+
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    const data = {
-      name: 'Matthew Morris',
-      address: '380 Lewis St\nOttawa\nOntario\nK2P 2P6',
-      sin: '123-456-789',
-      dobDay: '28',
-      dobMonth: '02',
-      dobYear: '1992',
-    }
-
     return res.status(422).send(
       renderPage({
         locale,
@@ -195,12 +114,14 @@ app.post('/user', checkSchema(dashboardSchema), (req, res) => {
         title: 'Error: Dashboard',
         props: {
           data,
-          userInfo: false,
+          userInfo: true,
           errors: errorArray2ErrorObject(errors),
         },
       }),
     )
   }
+
+  req.session = getSessionData(data)
 
   return res.redirect(302, '/confirmation')
 })
