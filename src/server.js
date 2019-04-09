@@ -107,6 +107,14 @@ app.post('/dashboard', checkSchema(dashboardSchema), (req, res) => {
   return res.redirect(302, '/confirmation')
 })
 
+app.get('/consent', (req, res) => {
+  const content =
+    '<h1>Consent</h1> \
+    <p>Permission for something to happen or agreement to do something.</p>'
+
+  res.send(_renderDocument({ title: '[WIP] Consent', locale, content }))
+})
+
 app.get('/edit', (req, res) => {
   const content = `
     <h1>Editing coming soon</h1>
@@ -162,9 +170,39 @@ app.get('/user', (req, res) => {
     renderPage({
       locale,
       pageComponent: 'Dashboard',
-      props: { data, test: true },
+      props: { data, userInfo: false },
     }),
   )
+})
+
+/* TODO: delete this by Wednesday, April 17th */
+app.post('/user', checkSchema(dashboardSchema), (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    const data = {
+      name: 'Matthew Morris',
+      address: '380 Lewis St\nOttawa\nOntario\nK2P 2P6',
+      sin: '123-456-789',
+      dobDay: '28',
+      dobMonth: '02',
+      dobYear: '1992',
+    }
+
+    return res.status(422).send(
+      renderPage({
+        locale,
+        pageComponent: 'Dashboard',
+        title: 'Error: Dashboard',
+        props: {
+          data,
+          userInfo: false,
+          errors: errorArray2ErrorObject(errors),
+        },
+      }),
+    )
+  }
+
+  return res.redirect(302, '/confirmation')
 })
 
 module.exports = app
